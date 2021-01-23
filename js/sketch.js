@@ -57,11 +57,16 @@ class Sketch {
   }
 
   download() {
+    // create download link
     let link = $("<a></a>");
+    // append to body
     $("body").append(link);
+    // edit values
     $(link).attr("download", `Mondrian-${this.name}.png`);
     $(link).attr("href", this.canvas.toDataURL("image/png"));
+    // click on it
     $(link)[0].click();
+    // remove it
     $(link).remove();
   }
 
@@ -78,12 +83,14 @@ class Sketch {
   setup() {
     // this is ran once
     let hues = [0, 60, 220];
+    // give some variance to colors
     for (let i = 0; i < hues.length; i++) {
       hues[i] = wrap(hues[i] + random(-5, 5, true), 0, 360);
     }
     this.drawn = false;
     this.scl = 0.8;
 
+    // calculate text positions
     let text_height = (1 - this.scl) / 2 * this.canvas.height * 0.5;
     let text_left = (1 - this.scl) / 2 * this.canvas.width;
     let text_right = this.canvas.width - (1 - this.scl) / 2 * this.canvas.width;
@@ -92,23 +99,28 @@ class Sketch {
     this.name = random(10000, 99999, true);
     this.title = new Title(this.name, text_height, text_left, text_right, text_top, text_bottom);
 
+    // calculate minimum size of each rectangle
     let min_size = map(this.canvas.width, 0, 1000, 0, 350);
     this.rectangles = [];
     this.rectangles.push(new Rectangle(0, 0, this.canvas.width, this.canvas.height, hues, min_size));
 
+    // outer rectangle
     this.frame = new Frame(this.canvas.width, this.canvas.height);
 
+    // some graining texture
     this.texture = new Texture(this.canvas.width, this.canvas.height);
   }
 
   draw() {
     // split all rectangles that can be split
     while (this.rectangles.filter(r => r.can_split).length > 0) {
+      // shuffle the array so we don't always pick the first one
       shuffle_array(this.rectangles);
       let index = this.rectangles.findIndex(r => r.can_split);
       let new_rectangles = this.rectangles[index].split();
+      // remove the triangle
       this.rectangles.splice(index, 1);
-
+      // add the new triangles
       new_rectangles.forEach((r, i) => {
         this.rectangles.push(r);
       });
@@ -116,33 +128,41 @@ class Sketch {
 
     // check if at least 2 rectangles are colored. If not, color some.
     while (this.rectangles.filter(r => r.is_colored).length < 4) {
+      // shuffle the array so we don't always pick the first one
       shuffle_array(this.rectangles);
       let index = this.rectangles.findIndex(r => !r.is_colored);
+      // color the array
       this.rectangles[index].calculate_color(true);
     }
 
     // check if there are too many colored rectangles. If so, decolor some.
     while (this.rectangles.filter(r => r.is_colored).length / this.rectangles.length > 0.6) {
+      // shuffle the array so we don't always pick the first one
       shuffle_array(this.rectangles);
       let index = this.rectangles.findIndex(r => r.is_colored);
+      // decolor the array
       this.rectangles[index].uncolor(true);
     }
 
     // now draw everything but only once
     if (!this.drawn) {
       this.drawn = true;
+
       this.ctx.save();
       this.background("white");
       this.title.show(ctx);
 
+      // scaling
       this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
       this.ctx.scale(this.scl, this.scl);
       this.ctx.translate(-this.canvas.width/2, -this.canvas.height/2);
 
+      // now start drawing the actual stuff
       this.frame.show(this.ctx);
       this.rectangles.forEach((r, i) => {
         r.show(this.ctx);
       });
+      // add some texture
       this.texture.show(this.ctx);
     }
     this.ctx.restore();
