@@ -136,7 +136,7 @@ class Sketch {
     }
 
     // check if there are too many colored rectangles. If so, decolor some.
-    while (this.rectangles.filter(r => r.is_colored).length / this.rectangles.length > 0.6) {
+    while (this.rectangles.filter(r => r.is_colored).length / this.rectangles.length > 0.5) {
       // shuffle the array so we don't always pick the first one
       shuffle_array(this.rectangles);
       let index = this.rectangles.findIndex(r => r.is_colored);
