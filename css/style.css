@@ -1,0 +1,100 @@
+@font-face {
+  font-family: Raleway;
+  src: url(Raleway-Regular.ttf);
+}
+
+body *, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: Raleway;
+  user-select: none;
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  font-style: italic;
+}
+
+.pc {
+  display: inline;
+}
+
+.mobile {
+  display: none;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#sketch {
+  font-family: Raleway;
+}
+
+.credits {
+  font-size: 2rem;
+  width: calc(100vw - 2rem);
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 2rem;
+  width: calc(100vw - 2rem);
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  top: 1rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.credits * {
+  padding-right: 1rem;
+}
+
+#download {
+  color: red;
+  text-decoration: underline;
+}
+
+#download:hover {
+  font-style: italic;
+}
+
+@media only screen and (max-width: 480px) {
+  .credits {
+    justify-content: center;
+    font-size: 0.75rem;
+    width: calc(100vw - 1.6rem);
+  }
+
+  .title {
+    font-size: 1.5rem;
+    width: calc(100vw - 4rem);
+    text-align: center;
+    top: 2rem;
+    left: 2rem;
+  }
+
+  .mobile {
+    display: inline;
+  }
+
+  .pc {
+    display: none;
+  }
+}
