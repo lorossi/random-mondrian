@@ -153,6 +153,7 @@ class Title {
   constructor(name, height, left, right, top, bottom) {
     this.top_text = `Composition N° ${name}`;
     this.bottom_text = "Random Mondrian";
+    this.website = "www.lorenzoros.si";
     this.color = "#000000";
     this.top_font = `${height}px Raleway`;
     this.bottom_font = `${height/2}px Raleway`;
@@ -177,6 +178,12 @@ class Title {
     ctx.fillStyle = this.color;
     ctx.fillText(this.bottom_text, this.right, this.bottom);
 
+    ctx.font = this.bottom_font;
+    ctx.textBaseline = "bottom";
+    ctx.textAlign = "start";
+    ctx.fillStyle = this.color;
+    ctx.fillText(this.website, this.left, this.bottom);
+
     ctx.restore();
   }
 
@@ -195,7 +202,7 @@ class Rectangle {
     this.children = parseInt(random(2, 3, true));
 
     this.stroke_weight = 6;
-    this.fill_chanche = 0.3;
+    this.fill_chanche = 0.2;
     this.min_size = min_size;
     this.is_colored = random(1) <= this.fill_chanche;
     this.calculate_color();
