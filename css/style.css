@@ -57,9 +57,9 @@ a:hover {
   position: absolute;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-end;
   top: 1rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: red;
 }
 
 .credits * {
@@ -83,11 +83,10 @@ a:hover {
   }
 
   .title {
-    font-size: 1.5rem;
-    width: calc(100vw - 4rem);
-    text-align: center;
-    top: 2rem;
-    left: 2rem;
+    font-size: 0.9rem;
+    color: black;
+    top: 5rem;
+    left: 0;
   }
 
   .mobile {
