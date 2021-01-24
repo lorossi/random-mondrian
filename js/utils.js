@@ -111,6 +111,11 @@ const partial_sum = (array, end) => {
   return sum;
 };
 
+const random_pick = (array) => {
+  let index = random(0, array.length - 1, true);
+  return array[index];
+};
+
 const get_base_log = (x, y) => {
   return Math.log(y) / Math.log(x);
 };

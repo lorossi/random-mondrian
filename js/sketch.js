@@ -82,13 +82,14 @@ class Sketch {
 
   setup() {
     // this is ran once
-    let hues = [0, 60, 220];
+    this.palette = [0, 55, 220];
     // give some variance to colors
-    for (let i = 0; i < hues.length; i++) {
-      hues[i] = wrap(hues[i] + random(-5, 5, true), 0, 360);
+    for (let i = 0; i < this.palette.length; i++) {
+      this.palette[i] = wrap(this.palette[i] + random(-5, 5, true), 0, 360);
     }
     this.drawn = false;
     this.scl = 0.8;
+    this.color_percentage = random(0.1, 0.6);
 
     // calculate text positions
     let text_height = (1 - this.scl) / 2 * this.canvas.height * 0.5;
@@ -102,7 +103,7 @@ class Sketch {
     // calculate minimum size of each rectangle
     let min_size = map(this.canvas.width, 0, 1000, 0, 350);
     this.rectangles = [];
-    this.rectangles.push(new Rectangle(0, 0, this.canvas.width, this.canvas.height, hues, min_size));
+    this.rectangles.push(new Rectangle(0, 0, this.canvas.width, this.canvas.height, min_size));
 
     // outer rectangle
     this.frame = new Frame(this.canvas.width, this.canvas.height);
@@ -112,41 +113,37 @@ class Sketch {
   }
 
   draw() {
-    // split all rectangles that can be split
-    while (this.rectangles.filter(r => r.can_split).length > 0) {
-      // shuffle the array so we don't always pick the first one
-      shuffle_array(this.rectangles);
-      let index = this.rectangles.findIndex(r => r.can_split);
-      let new_rectangles = this.rectangles[index].split();
-      // remove the triangle
-      this.rectangles.splice(index, 1);
-      // add the new triangles
-      new_rectangles.forEach((r, i) => {
-        this.rectangles.push(r);
-      });
-    }
-
-    // check if at least 2 rectangles are colored. If not, color some.
-    while (this.rectangles.filter(r => r.is_colored).length < 4) {
-      // shuffle the array so we don't always pick the first one
-      shuffle_array(this.rectangles);
-      let index = this.rectangles.findIndex(r => !r.is_colored);
-      // color the array
-      this.rectangles[index].calculate_color(true);
-    }
-
-    // check if there are too many colored rectangles. If so, decolor some.
-    while (this.rectangles.filter(r => r.is_colored).length / this.rectangles.length > 0.5) {
-      // shuffle the array so we don't always pick the first one
-      shuffle_array(this.rectangles);
-      let index = this.rectangles.findIndex(r => r.is_colored);
-      // decolor the array
-      this.rectangles[index].uncolor(true);
-    }
-
     // now draw everything but only once
     if (!this.drawn) {
       this.drawn = true;
+
+      // split all rectangles that can be split
+      while (this.rectangles.filter(r => r.can_split).length > 0) {
+        // shuffle the array so we don't always pick the first one
+        shuffle_array(this.rectangles);
+        let index = this.rectangles.findIndex(r => r.can_split);
+        let new_rectangles = this.rectangles[index].split();
+        // remove the triangle
+        this.rectangles.splice(index, 1);
+        // add the new triangles
+        new_rectangles.forEach((r, i) => {
+          this.rectangles.push(r);
+        });
+      }
+
+      let hues_length = Math.ceil(this.rectangles.length * this.color_percentage);
+      let hues = [];
+
+      for (let i = 0; i < hues_length; i++) {
+        hues.push(this.palette[i % this.palette.length]);
+      }
+
+      while (this.rectangles.filter(r => r.colored).length / this.rectangles.length < this.color_percentage) {
+        shuffle_array(this.rectangles);
+        let index = this.rectangles.findIndex(r => !r.colored);
+        let hue = hues.pop();
+        this.rectangles[index].color = `hsl(${hue}, 100%, 50%)`;
+      }
 
       this.ctx.save();
       this.background("white");
@@ -156,9 +153,9 @@ class Sketch {
       this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
       this.ctx.scale(this.scl, this.scl);
       this.ctx.translate(-this.canvas.width/2, -this.canvas.height/2);
-
-      // now start drawing the actual stuff
+      // show frame
       this.frame.show(this.ctx);
+      // now start drawing the actual stuff
       this.rectangles.forEach((r, i) => {
         r.show(this.ctx);
       });
@@ -206,44 +203,24 @@ class Title {
 
     ctx.restore();
   }
-
-
 }
 
+
 class Rectangle {
-  constructor(x, y, w, h, hues, min_size) {
+  constructor(x, y, w, h, min_size) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
-    this.hues = hues;
+
+    this._color = null;
 
     this.direction = Math.random() > 0.5 ? "horizontal" : "vertical";
     this.children = parseInt(random(2, 3, true));
 
-    this.stroke_weight = 6;
+    this.stroke_weight = 8;
     this.fill_chanche = 0.2;
     this.min_size = min_size;
-    this.is_colored = random(1) <= this.fill_chanche;
-    this.calculate_color();
-  }
-
-  calculate_color(force) {
-    this.is_colored = this.is_colored || force;
-    if (this.is_colored) {
-      let hue = parseInt(this.hues[random(0, this.hues.length - 1, true)]);
-      this.color = `hsl(${hue}, 100%, 50%)`;
-    } else {
-      this.color = "#ffffff";
-    }
-  }
-
-  uncolor(force) {
-    this.is_colored = this.is_colored || force;
-    if (this.is_colored) {
-      this.is_colored = false;
-      this.color = "#ffffff";
-    }
   }
 
   split() {
@@ -267,7 +244,7 @@ class Rectangle {
         let new_h = new_dimension[i] * this.h;
         let new_x = this.x;
         let new_y = this.y + partial_sum(new_dimension, i) * this.h;
-        new_rectangles.push(new Rectangle(new_x, new_y, new_w, new_h, this.hues, this.min_size));
+        new_rectangles.push(new Rectangle(new_x, new_y, new_w, new_h, this.min_size));
       }
     } else if (this.direction === "vertical") {
       let new_h = this.h;
@@ -276,7 +253,7 @@ class Rectangle {
         let new_w = new_dimension[i] * this.w;
         let new_x = this.x + partial_sum(new_dimension, i) * this.w;
         let new_y = this.y;
-        new_rectangles.push(new Rectangle(new_x, new_y, new_w, new_h, this.hues, this.min_size));
+        new_rectangles.push(new Rectangle(new_x, new_y, new_w, new_h, this.min_size));
       }
     }
     return new_rectangles;
@@ -284,7 +261,7 @@ class Rectangle {
 
   show(ctx) {
     ctx.save();
-    ctx.fillStyle = this.color;
+    ctx.fillStyle = this._color || "white";
     ctx.fillRect(this.x + this.stroke_weight / 2, this.y + this.stroke_weight / 2, this.w - this.stroke_weight, this.h - this.stroke_weight);
     ctx.restore();
   }
@@ -311,6 +288,18 @@ class Rectangle {
       }
     }
   }
+
+  get colored() {
+    return this._color != null;
+  }
+
+  get color() {
+    return this._color;
+  }
+
+  set color(c) {
+    this._color = c;
+  }
 }
 
 
@@ -318,8 +307,6 @@ class Frame {
   constructor(w, h) {
     this.w = w;
     this.h = h;
-
-    this.stroke_weight = 8;
   }
 
   show(ctx) {
@@ -328,7 +315,7 @@ class Frame {
     ctx.strokeStyle = "#000000";
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, this.w, this.h);
-    ctx.strokeRect(this.stroke_weight / 2, this.stroke_weight / 2, this.w - this.stroke_weight, this.h - this.stroke_weight);
+    ctx.strokeRect(0, 0, this.w, this.h);
     ctx.restore();
   }
 }
@@ -339,7 +326,7 @@ class Texture {
     this.h = h;
 
     this.scl = 1;
-    this.chanche = map(this.w, 1000, 0, 0.075, 0);
+    this.chanche = map(this.w, 1000, 0, 0.05, 0);
   }
 
   show(ctx) {
@@ -347,7 +334,7 @@ class Texture {
     for (let x = 0; x < this.w; x += this.scl) {
       for (let y = 0; y < this.h; y += this.scl) {
         if (random(1) <= this.chanche) {
-          let a = random(0.05, 0.15);
+          let a = random(0.1, 0.2);
           ctx.fillStyle = `rgba(0, 0, 0, ${a})`;
           ctx.fillRect(x, y, this.scl, this.scl);
         }
