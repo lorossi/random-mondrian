@@ -1,40 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta name="description" content="Webpage description goes here"/>
-    <meta charset="utf-8">
-    <title>Random Mondrian</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="author" content="Author Name">
-    <link rel="shortcut icon" href="favicon.ico"/>
 
-    <link rel="stylesheet" href="css/style.css">
+<head>
+  <meta name="description" content="Random Mondrian" />
+  <meta charset="utf-8">
+  <title>Random Mondrian</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="author" content="Author Name">
+  <link rel="shortcut icon" href="favicon.ico" />
 
-    <script src="js/jquery-3.5.1.min.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/sketch.js"></script>
+  <link rel="preload" href="/css/Bauhaus-Regular.ttf" as="font" crossorigin>
 
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-172160259-1"></script>
-    <script>
-       window.dataLayer = window.dataLayer || [];
-       function gtag(){dataLayer.push(arguments);}
-       gtag('js', new Date());
+  <link rel="stylesheet" href="css/style.css">
 
-       gtag('config', 'UA-172160259-1');
-    </script>
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/sketch.js"></script>
 
-  </head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-172160259-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  <body>
-    <div class="title"><p class="pc">click on the painting to generate a new one</p><p class="mobile">tap on the painting to generate a new one</p></div>
-    <div class="container">
-      <canvas id="sketch"  width="900" height="900">
-      </canvas>
-    </div>
+    gtag('config', 'UA-172160259-1');
+  </script>
 
-    <div class="credits"><span><a href="https://lorenzoros.si/">Lorenzo Rossi</a><a href="https://github.com/lorossi/random-mondrian">GitHub repo</a></span> <div id="download">download the image</div>
-  </body>
+</head>
+
+<body>
+  <div class="instructions">
+    <p class="pc">click on the painting to generate a new one</p>
+    <p class="mobile">tap on the painting to generate a new one</p>
+  </div>
+  <div class="container">
+    <canvas id="sketch" width="900" height="900">
+    </canvas>
+  </div>
+
+  <div class="credits">
+    <a href="https://lorenzoros.si/">by Lorenzo Rossi</a>
+    <span id="download">download the image</span>
+    <a href="https://github.com/lorossi/random-mondrian">GitHub repo</a>
+  </div>
+</body>
+
 </html>

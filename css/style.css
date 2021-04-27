@@ -1,13 +1,13 @@
 @font-face {
-  font-family: Raleway;
-  src: url(Raleway-Regular.ttf);
+  font-family: Bauhaus;
+  src: url(Bauhaus-Regular.ttf);
 }
 
 body *, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: Raleway;
+  font-family: Bauhaus;
   user-select: none;
 }
 
@@ -37,28 +37,29 @@ a:hover {
 }
 
 #sketch {
-  font-family: Raleway;
+  width: 85vh;
+  height: 85vh;
+  touch-action: none;
 }
 
 .credits {
-  font-size: 2rem;
-  width: calc(100vw - 2rem);
+  font-size: 1.5rem;
+  width: 100vw;
   position: absolute;
-  bottom: 1rem;
-  left: 1rem;
+  bottom: 1vh;
+
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-around;
+  align-items: center;
 }
 
-.title {
-  font-size: 2rem;
-  width: calc(100vw - 2rem);
+.instructions {
   position: absolute;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  top: 1rem;
+  font-size: 1.5rem;
+  width: 100vw;
+  text-align: center;
+  top: 1vh;
   color: red;
 }
 
@@ -68,25 +69,24 @@ a:hover {
 
 #download {
   color: red;
-  text-decoration: underline;
-}
+  text-decoration: none;
+  cursor: pointer;
 
-#download:hover {
-  font-style: italic;
+  padding: 0.5rem;
+  border: 1px solid red;
+  border-radius: 2px;
 }
 
 @media only screen and (max-width: 480px) {
   .credits {
     justify-content: center;
-    font-size: 0.75rem;
-    width: calc(100vw - 1.6rem);
+    font-size: 0.8rem;
+    bottom: 5vh;
   }
 
-  .title {
-    font-size: 0.9rem;
-    color: black;
-    top: 5rem;
-    left: 0;
+  .instructions {
+    font-size: 2rem;
+    top: 10vh;
   }
 
   .mobile {
@@ -95,5 +95,10 @@ a:hover {
 
   .pc {
     display: none;
+  }
+
+  #sketch {
+    width: 95vw;
+    height: 95vw;
   }
 }
