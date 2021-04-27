@@ -34,9 +34,13 @@ class Sketch {
     let diff;
     diff = performance.now() - this.then;
     if (diff < this.fps_interval) {
-    // not enough time has passed, so we request next frame and give up on this render
+      // not enough time has passed, so we request next frame and give up on this render
       return;
     }
+
+    // don't draw if loop is set to false
+    if (!this.loop) return;
+
     // updated last frame rendered time
     this.then = performance.now();
     // now draw
@@ -70,12 +74,6 @@ class Sketch {
     $(link).remove();
   }
 
-  resize(size) {
-    this.canvas.width = size;
-    this.canvas.height = size;
-    this.setup();
-  }
-
   reset() {
     this.setup();
   }
@@ -85,18 +83,21 @@ class Sketch {
     this.palette = [0, 55, 220];
     // give some variance to colors
     for (let i = 0; i < this.palette.length; i++) {
-      this.palette[i] = wrap(this.palette[i] + random(-5, 5, true), 0, 360);
+      this.palette[i] = wrap(this.palette[i] + random(-7, 7, true), 0, 360);
     }
+    // consistent saturation over the painting
+    this.sat = random(80, 100);
     this.drawn = false;
     this.scl = 0.8;
-    this.color_percentage = random(0.1, 0.6);
+    this.color_percentage = random(0.2, 0.6);
+    this.loop = true;
 
     // calculate text positions
     let text_height = (1 - this.scl) / 2 * this.canvas.height * 0.5;
     let text_left = (1 - this.scl) / 2 * this.canvas.width;
     let text_right = this.canvas.width - (1 - this.scl) / 2 * this.canvas.width;
     let text_top = text_height * 0.5;
-    let text_bottom = this.canvas.height - text_height;
+    let text_bottom = this.canvas.height - text_height / 1.5;
     this.name = random(10000, 99999, true);
     this.title = new Title(this.name, text_height, text_left, text_right, text_top, text_bottom);
 
@@ -123,14 +124,15 @@ class Sketch {
         shuffle_array(this.rectangles);
         let index = this.rectangles.findIndex(r => r.can_split);
         let new_rectangles = this.rectangles[index].split();
-        // remove the triangle
+        // remove the rectangle
         this.rectangles.splice(index, 1);
-        // add the new triangles
+        // add the new rectangle
         new_rectangles.forEach((r, i) => {
           this.rectangles.push(r);
         });
       }
 
+      // array of all hues
       let hues_length = Math.ceil(this.rectangles.length * this.color_percentage);
       let hues = [];
 
@@ -138,42 +140,44 @@ class Sketch {
         hues.push(this.palette[i % this.palette.length]);
       }
 
-      while (this.rectangles.filter(r => r.colored).length / this.rectangles.length < this.color_percentage) {
+      while (hues.length > 0) {
+        // keep coloring rctangles until the treshold is reached
         shuffle_array(this.rectangles);
-        let index = this.rectangles.findIndex(r => !r.colored);
-        let hue = hues.pop();
-        this.rectangles[index].color = `hsl(${hue}, 100%, 50%)`;
+        const index = this.rectangles.findIndex(r => !r.colored);
+        const hue = hues.pop();
+        this.rectangles[index].color = `hsl(${hue}, ${this.sat}%, 50%)`;
       }
 
       this.ctx.save();
-      this.background("white");
+      this.background("#F4F0E8");
       this.title.show(ctx);
 
       // scaling
-      this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
+      this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
       this.ctx.scale(this.scl, this.scl);
-      this.ctx.translate(-this.canvas.width/2, -this.canvas.height/2);
-      // show frame
-      this.frame.show(this.ctx);
+      this.ctx.translate(-this.canvas.width / 2, -this.canvas.height / 2);
+
       // now start drawing the actual stuff
-      this.rectangles.forEach((r, i) => {
-        r.show(this.ctx);
-      });
+      this.rectangles.forEach(r => r.show(this.ctx));
+      // draw frame
+      this.frame.show(this.ctx);
       // add some texture
       this.texture.show(this.ctx);
     }
     this.ctx.restore();
+
+
+    this.loop = false;
   }
 }
 
 class Title {
   constructor(name, height, left, right, top, bottom) {
     this.top_text = `Composition N° ${name}`;
-    this.bottom_text = "Random Mondrian";
-    this.website = "www.lorenzoros.si";
+    this.bottom_text = "Lorenzo Rossi";
     this.color = "#000000";
-    this.top_font = `${height}px Raleway`;
-    this.bottom_font = `${height/2}px Raleway`;
+    this.top_font = `${height}px Bauhaus`;
+    this.bottom_font = `${height / 2}px Bauhaus`;
     this.left = left;
     this.right = right;
     this.top = top;
@@ -195,12 +199,6 @@ class Title {
     ctx.fillStyle = this.color;
     ctx.fillText(this.bottom_text, this.right, this.bottom);
 
-    ctx.font = this.bottom_font;
-    ctx.textBaseline = "bottom";
-    ctx.textAlign = "start";
-    ctx.fillStyle = this.color;
-    ctx.fillText(this.website, this.left, this.bottom);
-
     ctx.restore();
   }
 }
@@ -213,13 +211,15 @@ class Rectangle {
     this.w = w;
     this.h = h;
 
-    this._color = null;
+    const channel = random(240, 255);
+    this._color = `rgb(${channel}, ${channel}, ${channel}`;
+    this._stroke_color = "rgb(15, 15, 15)";
+    this._colored = false;
 
     this.direction = Math.random() > 0.5 ? "horizontal" : "vertical";
     this.children = parseInt(random(2, 3, true));
 
-    this.stroke_weight = 8;
-    this.fill_chanche = 0.2;
+    this.line_width = 6;
     this.min_size = min_size;
   }
 
@@ -228,31 +228,33 @@ class Rectangle {
     let new_dimension = Array(this.children).fill(0);
     let sum = 0;
 
+    // calculate the sizes of the children
     for (let i = 0; i < new_dimension.length; i++) {
       new_dimension[i] = random(1, 2, true);
       sum += new_dimension[i];
     }
-
     for (let i = 0; i < new_dimension.length; i++) {
       new_dimension[i] /= sum;
     }
 
     if (this.direction === "horizontal") {
-      let new_w = this.w;
-      let new_direction = "vertical";
+      // split horizontally
+      const new_w = this.w;
       for (let i = 0; i < this.children; i++) {
-        let new_h = new_dimension[i] * this.h;
-        let new_x = this.x;
-        let new_y = this.y + partial_sum(new_dimension, i) * this.h;
+        const new_h = new_dimension[i] * this.h;
+        const new_x = this.x;
+        // starting  y is the sum of all the heights
+        const new_y = this.y + partial_sum(new_dimension, i) * this.h;
         new_rectangles.push(new Rectangle(new_x, new_y, new_w, new_h, this.min_size));
       }
     } else if (this.direction === "vertical") {
-      let new_h = this.h;
-      let new_direction = "horizontal";
+      // split vertically
+      const new_h = this.h;
       for (let i = 0; i < this.children; i++) {
         let new_w = new_dimension[i] * this.w;
-        let new_x = this.x + partial_sum(new_dimension, i) * this.w;
-        let new_y = this.y;
+        // starting  x is the sum of all the widths
+        const new_x = this.x + partial_sum(new_dimension, i) * this.w;
+        const new_y = this.y;
         new_rectangles.push(new Rectangle(new_x, new_y, new_w, new_h, this.min_size));
       }
     }
@@ -261,8 +263,12 @@ class Rectangle {
 
   show(ctx) {
     ctx.save();
-    ctx.fillStyle = this._color || "white";
-    ctx.fillRect(this.x + this.stroke_weight / 2, this.y + this.stroke_weight / 2, this.w - this.stroke_weight, this.h - this.stroke_weight);
+    ctx.translate(this.x, this.y);
+    ctx.strokeStyle = this._stroke_color;
+    ctx.lineWidth = this.line_width;
+    ctx.fillStyle = this._color;
+    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.strokeRect(this.line_width / 2, this.line_width / 2, this.w - this.line_width / 2, this.h - this.line_width / 2);
     ctx.restore();
   }
 
@@ -290,7 +296,7 @@ class Rectangle {
   }
 
   get colored() {
-    return this._color != null;
+    return this._colored;
   }
 
   get color() {
@@ -299,6 +305,7 @@ class Rectangle {
 
   set color(c) {
     this._color = c;
+    this._colored = true;
   }
 }
 
@@ -307,14 +314,14 @@ class Frame {
   constructor(w, h) {
     this.w = w;
     this.h = h;
+    this.line_width = 10;
+    this.channel = random(10, 20);
   }
 
   show(ctx) {
     ctx.save();
-    ctx.lineWidth = this.stroke_weight;
-    ctx.strokeStyle = "#000000";
-    ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.lineWidth = this.line_width;
+    ctx.fillStyle = `rgb(${this.channel}, ${this.channel}, ${this.channel})`;
     ctx.strokeRect(0, 0, this.w, this.h);
     ctx.restore();
   }
@@ -322,24 +329,28 @@ class Frame {
 
 class Texture {
   constructor(w, h) {
-    this.w = w;
-    this.h = h;
+    this.alpha = random(2, 4) / 100;
+    this.channel = random(80, 100);
+    this.scl = random(2, 5);
 
-    this.scl = 1;
-    this.chanche = map(this.w, 1000, 0, 0.05, 0);
+    this.particles = [];
+    for (let i = 0; i < 5000; i++) {
+      this.particles.push({
+        x: random(0, w, true),
+        y: random(0, h, true),
+      });
+    }
   }
 
   show(ctx) {
     ctx.save();
-    for (let x = 0; x < this.w; x += this.scl) {
-      for (let y = 0; y < this.h; y += this.scl) {
-        if (random(1) <= this.chanche) {
-          let a = random(0.1, 0.2);
-          ctx.fillStyle = `rgba(0, 0, 0, ${a})`;
-          ctx.fillRect(x, y, this.scl, this.scl);
-        }
-      }
-    }
+    this.particles.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.fillStyle = `rgba(${this.channel}, ${this.channel}, ${this.channel}, ${this.alpha})`;
+      ctx.fillRect(0, 0, this.scl, this.scl);
+      ctx.restore();
+    });
     ctx.restore();
   }
 }
