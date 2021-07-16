@@ -141,9 +141,9 @@ class Sketch {
       }
 
       while (hues.length > 0) {
-        // keep coloring rctangles until the treshold is reached
+        // keep colouring rectangles until the threshold is reached
         shuffle_array(this.rectangles);
-        const index = this.rectangles.findIndex(r => !r.colored);
+        const index = this.rectangles.findIndex(r => !r.coloured);
         const hue = hues.pop();
         this.rectangles[index].color = `hsl(${hue}, ${this.sat}%, 50%)`;
       }
@@ -176,6 +176,7 @@ class Title {
     this.top_text = `Composition N° ${name}`;
     this.bottom_text = "Lorenzo Rossi";
     this.color = "#000000";
+    // font sizes are different for title and sub title
     this.top_font = `${height}px Bauhaus`;
     this.bottom_font = `${height / 2}px Bauhaus`;
     this.left = left;
@@ -214,7 +215,7 @@ class Rectangle {
     const channel = random(240, 255);
     this._color = `rgb(${channel}, ${channel}, ${channel}`;
     this._stroke_color = "rgb(15, 15, 15)";
-    this._colored = false;
+    this._coloured = false;
 
     this.direction = Math.random() > 0.5 ? "horizontal" : "vertical";
     this.children = parseInt(random(2, 3, true));
@@ -224,6 +225,7 @@ class Rectangle {
   }
 
   split() {
+    // split the rectangle either horizontally or vertically
     let new_rectangles = [];
     let new_dimension = Array(this.children).fill(0);
     let sum = 0;
@@ -295,8 +297,8 @@ class Rectangle {
     }
   }
 
-  get colored() {
-    return this._colored;
+  get coloured() {
+    return this._coloured;
   }
 
   get color() {
@@ -305,7 +307,7 @@ class Rectangle {
 
   set color(c) {
     this._color = c;
-    this._colored = true;
+    this._coloured = true;
   }
 }
 
@@ -328,6 +330,9 @@ class Frame {
 }
 
 class Texture {
+  // texture is just a bunch (a big one) of particles added to the canvas
+  // each particle is very small and lightly coloured
+  // It just gives the canvas a little more
   constructor(w, h) {
     this.alpha = random(2, 4) / 100;
     this.channel = random(80, 100);
