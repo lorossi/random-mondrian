@@ -40,6 +40,7 @@ a:hover {
   width: 85vh;
   height: 85vh;
   touch-action: none;
+  aspect-ratio: 1/1;
 }
 
 .credits {
@@ -63,10 +64,6 @@ a:hover {
   color: red;
 }
 
-.credits * {
-  padding-right: 1rem;
-}
-
 #download {
   color: red;
   text-decoration: none;
@@ -79,7 +76,7 @@ a:hover {
 
 @media only screen and (max-width: 480px) {
   .credits {
-    justify-content: center;
+    justify-content: space-around;
     font-size: 0.8rem;
     bottom: 5vh;
   }
