@@ -4,9 +4,9 @@
 
 I like Mondrian, as I really like Bauhaus art, and it's very likely that I will be never able to afford one of his paintings. But what if i *reaaaally* wanted one of his artworks?
 
-You could say that I could buy a cheap replica, or an even cheaper print. An that would make *a awesome lot of sense.* But, you know me. Or not. Just keep reading.
+You could say that I should buy a cheap replica, or an even cheaper print. And that would make *a awesome lot of sense.* But, you know me. Or not. Just keep reading.
 
-I could learn how to paint, and steal his style (isn't art, after all, just *stealing?*) but I can't. I do, however, like coding. So instead of going out and looking for an art shop (or just googling a painting and turning on my printer), I just decided that I would code yet another *something* to generate custom-made, hand-tailored, procedurally-generated faux mondrian-*esque* paintings. *Wow that's a lot of buzzwords.*
+I could learn how to paint, and steal his style (isn't art, after all, just *stealing?*) but I can't. I do, however, like coding. So instead of going out and looking for an art shop (or just googling a painting and turning my printer on), I just decided that I would code yet another *something* to generate custom-made, hand-tailored, procedurally-generated faux mondrian-*esque* paintings. *Wow that's a lot of buzzwords.*
 
 Try the project [here](https://lorenzoros.si/random-mondrian/) and download your **custom made, personal** Mondrian painting. *Guaranteed to be unique!*. If you're feeling lazy or just can't be bothered, check my [Instagram profile](https://www.instagram.com/lorossi97/) to see some pre-rendered images or just scroll below to see what this script is capable of.
 
